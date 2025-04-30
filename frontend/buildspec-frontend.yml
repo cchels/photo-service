@@ -1,10 +1,12 @@
 version: 0.2
 
 phases:
-  install:    commands: []
+  install:
+    commands:
+      - echo "No dependencies to install"
   build:
     commands:
-      - echo "No build — static files only"
+      - echo "Skipping build — static files only"
 artifacts:
   base-directory: frontend
   files:
