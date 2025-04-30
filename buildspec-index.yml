@@ -1,0 +1,10 @@
+version: 0.2
+
+phases:
+  build:
+    commands:
+      - cd index-photos && zip -r ../index-photos.zip . && cd ..
+artifacts:
+  files:
+    - appspec-index.yml
+    - index-photos.zip
