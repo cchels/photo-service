@@ -4,5 +4,7 @@ resources:
       type: AWS::Lambda::Function
       properties:
         name: index-photos
-        alias: live
+        alias: PROD
+        currentversion: 1
+        targetversion: 2
 hooks: []

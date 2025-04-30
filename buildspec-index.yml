@@ -4,7 +4,8 @@ phases:
   build:
     commands:
       - cd index-photos && zip -r ../index-photos.zip . && cd ..
+      - cp appspec-index.yml appspec.yaml
 artifacts:
   files:
-    - appspec-index.yml
+    - appspec.yaml
     - index-photos.zip

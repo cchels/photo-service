@@ -4,7 +4,8 @@ phases:
   build:
     commands:
       - cd search-photos && zip -r ../search-photos.zip . && cd ..
+      - cp appspec-search.yml appspec.yaml
 artifacts:
   files:
-    - appspec-search.yml
+    - appspec.yaml
     - search-photos.zip
