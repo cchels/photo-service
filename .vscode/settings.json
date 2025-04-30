@@ -1,0 +1,8 @@
+{
+    // Force all .yaml/.yml files to be highlighted as YAML
+    "files.associations": {
+      "*.yaml": "yaml",
+      "*.yml":  "yaml"
+    }
+  }
+  

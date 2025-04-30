@@ -1,0 +1,81 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >
+  IAM roles for Lambda functions:
+    - IndexLambdaRole (put objects, logs)
+    - SearchLambdaRole (get/list objects, logs)
+
+Resources:
+  IndexLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: IndexLambdaRole
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: IndexLambdaS3Put
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: s3:PutObject
+                Resource: !Sub '${PhotoAlbum-PhotoBucketName}/*'
+        - PolicyName: IndexLambdaLogs
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: 'arn:aws:logs:*:*:*'
+
+  SearchLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: SearchLambdaRole
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: SearchLambdaS3Read
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:ListBucket
+                  - s3:GetObject
+                Resource:
+                  - !Sub 'arn:aws:s3:::${PhotoAlbum-PhotoBucketName}'
+                  - !Sub 'arn:aws:s3:::${PhotoAlbum-PhotoBucketName}/*'
+        - PolicyName: SearchLambdaLogs
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: 'arn:aws:logs:*:*:*'
+
+Outputs:
+  IndexRoleArn:
+    Value: !GetAtt IndexLambdaRole.Arn
+    Export:
+      Name: PhotoAlbum-IndexRoleArn
+
+  SearchRoleArn:
+    Value: !GetAtt SearchLambdaRole.Arn
+    Export:
+      Name: PhotoAlbum-SearchRoleArn

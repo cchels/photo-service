@@ -1,0 +1,87 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >
+  REST API with two methods:
+    - PUT /photos → index-photos
+    - GET /search → search-photos
+
+Resources:
+  PhotoApi:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: PhotoAlbumAPI
+
+  PhotosResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref PhotoApi
+      ParentId: !GetAtt PhotoApi.RootResourceId
+      PathPart: photos
+
+  SearchResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref PhotoApi
+      ParentId: !GetAtt PhotoApi.RootResourceId
+      PathPart: search
+
+  PutPhotosMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref PhotoApi
+      ResourceId: !Ref PhotosResource
+      HttpMethod: PUT
+      AuthorizationType: NONE
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri:
+          Fn::Sub: >
+            arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${IndexFunctionArn}/invocations
+
+  GetSearchMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref PhotoApi
+      ResourceId: !Ref SearchResource
+      HttpMethod: GET
+      AuthorizationType: NONE
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri:
+          Fn::Sub: >
+            arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SearchFunctionArn}/invocations
+
+  PermissionIndexInvoke:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !ImportValue PhotoAlbum-IndexFunctionArn
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Sub: >
+          arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${PhotoApi}/*/PUT/photos
+
+  PermissionSearchInvoke:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !ImportValue PhotoAlbum-SearchFunctionArn
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Sub: >
+          arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${PhotoApi}/*/GET/search
+
+  PhotoApiDeployment:
+    Type: AWS::ApiGateway::Deployment
+    Properties:
+      RestApiId: !Ref PhotoApi
+      StageName: prod
+    DependsOn:
+      - PutPhotosMethod
+      - GetSearchMethod
+
+Outputs:
+  ApiUrl:
+    Value: !Sub 'https://${PhotoApi}.execute-api.${AWS::Region}.amazonaws.com/prod'
+    Description: Base URL for the PhotoAlbum API

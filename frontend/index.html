@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AI Photo Search</title>
+  <link rel="stylesheet" href="styles.css" />
+
+  <!-- API Gateway SDK dependencies -->
+  <script type="text/javascript" src="lib/axios/dist/axios.standalone.js"></script>
+  <script type="text/javascript" src="lib/CryptoJS/rollups/crypto-js.js"></script>
+  <script type="text/javascript" src="lib/CryptoJS/rollups/sha256.js"></script>
+  <script type="text/javascript" src="lib/CryptoJS/components/hmac.js"></script>
+  <script type="text/javascript" src="lib/CryptoJS/components/enc-base64.js"></script>
+  <script type="text/javascript" src="lib/url-template/url-template.js"></script>
+  <script type="text/javascript" src="lib/apiGatewayCore/sigV4Client.js"></script>
+  <script type="text/javascript" src="lib/apiGatewayCore/apiGatewayClient.js"></script>
+  <script type="text/javascript" src="lib/apiGatewayCore/simpleHttpClient.js"></script>
+  <script type="text/javascript" src="lib/apiGatewayCore/utils.js"></script>
+  <script type="text/javascript" src="apigClient.js"></script>
+</head>
+<body>
+  <header>
+    <h1>AI Photo Search</h1>
+    <div class="search-bar">
+      <input type="text" id="searchInput" placeholder="e.g. show me cats" />
+      <button id="searchBtn">Search</button>
+    </div>
+  </header>
+
+  <main>
+    <div id="searchResults" class="image-grid"></div>
+  </main>
+
+  <section id="uploadSection">
+    <h2>Upload New Photo</h2>
+    <div class="upload-form">
+      <input type="file" id="fileInput" accept="image/*" />
+      <input type="text" id="customLabelsInput" placeholder="Custom labels, comma-separated" />
+      <button id="uploadBtn">Upload</button>
+    </div>
+    <div id="uploadStatus"></div>
+  </section>
+
+  <script src="script.js"></script>
+</body>
+</html>

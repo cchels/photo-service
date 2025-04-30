@@ -1,0 +1,66 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >
+  Create two S3 buckets:
+    1) PhotoStorageBucket (private, versioned, encrypted)
+    2) FrontendBucket (static website, public-read via policy)
+
+Resources:
+  PhotoStorageBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      VersioningConfiguration:
+        Status: Enabled                  # Enable versioning
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256       # Encrypt at rest
+      PublicAccessBlockConfiguration:    # Block all public access
+        BlockPublicAcls: true
+        IgnorePublicAcls: true
+        BlockPublicPolicy: true
+        RestrictPublicBuckets: true
+
+  FrontendBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      WebsiteConfiguration:
+        IndexDocument: index.html        # Static website settings
+        ErrorDocument: error.html
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        IgnorePublicAcls: true
+        BlockPublicPolicy: false       # Allow public policy
+        RestrictPublicBuckets: false
+      AccessControl: Private          # Objects are private, but policy will allow reads
+
+  FrontendBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref FrontendBucket       # Reference the bucket above
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: PublicReadGetObject
+            Effect: Allow
+            Principal: '*'
+            Action: 's3:GetObject'
+            Resource: !Sub '${FrontendBucket}/*'
+
+Outputs:
+  PhotoBucketName:
+    Value: !Ref PhotoStorageBucket
+    Export:
+      Name: PhotoAlbum-PhotoBucketName
+
+  FrontendBucketName:
+    Value: !Ref FrontendBucket
+    Export:
+      Name: PhotoAlbum-FrontendBucketName
+
+  FrontendWebsiteURL:
+    Value: !GetAtt FrontendBucket.WebsiteURL
+    Description: URL for static website hosting
