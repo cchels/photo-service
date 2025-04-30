@@ -1,0 +1,12 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.13
+  build:
+    commands:
+      - echo "Deploying search-photos Lambda..."
+      - aws lambda update-function-code --function-name search-photos --zip-file fileb://search-photos.zip
+      - echo "Deploying index-photos Lambda..."
+      - aws lambda update-function-code --function-name index-photos --zip-file fileb://index-photos.zip
