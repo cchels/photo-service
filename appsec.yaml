@@ -1,0 +1,11 @@
+version: 0.0
+Resources:
+  - TargetService:
+      Type: AWS::Lambda::Function
+      Properties:
+        Name: search-photos
+  - TargetService:
+      Type: AWS::Lambda::Function
+      Properties:
+        Name: index-photos
+Hooks: {}

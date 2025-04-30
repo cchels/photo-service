@@ -1,0 +1,13 @@
+version: 0.2
+
+phases:
+  install:    commands: []
+  build:
+    commands:
+      - echo "No build — static files only"
+artifacts:
+  base-directory: frontend
+  files:
+    - index.html
+    - script.js
+    - style.css
