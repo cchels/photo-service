@@ -12,6 +12,6 @@ phases:
       - cd index-photos && zip -r ../index-photos.zip . && cd ..
 artifacts:
   files:
-    - appspec.yaml
+    - appspec.yml
     - search-photos.zip
     - index-photos.zip
