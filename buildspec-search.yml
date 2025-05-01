@@ -1,10 +1,47 @@
 version: 0.2
 
 phases:
+  install:
+    commands:
+      - echo "→ Entering install phase"
+      - set -xe
+
   build:
     commands:
+      - echo "→ Packaging search-photos"
       - cd search-photos && zip -r ../search-photos.zip . && cd ..
-      - cp appspec-search.yml appspec.yaml
+
+      - echo "→ Publishing new Lambda version"
+      - |
+        SEARCH_TARGET=$(aws lambda publish-version \
+          --function-name search-photos \
+          --query Version --output text)
+      - echo "→ SEARCH_TARGET=$SEARCH_TARGET"
+
+      - echo "→ Fetching current alias version (or default to 0)"
+      - |
+        SEARCH_CURRENT=$(aws lambda get-alias \
+          --function-name search-photos \
+          --name PROD \
+          --query FunctionVersion --output text \
+          || echo "0")
+      - echo "→ SEARCH_CURRENT=$SEARCH_CURRENT"
+
+      - echo "→ Checking that placeholders still exist in template"
+      - grep -n "{{CURRENT}}" appspec-search.yml
+      - grep -n "{{TARGET}}"  appspec-search.yml
+
+      - echo "→ Generating final appspec.yaml"
+      - |
+        sed \
+          -e "s/{{CURRENT}}/${SEARCH_CURRENT}/" \
+          -e "s/{{TARGET}}/${SEARCH_TARGET}/" \
+          appspec-search.yml > appspec.yaml
+
+      - echo "------ appspec.yaml ------"
+      - cat appspec.yaml
+      - echo "--------------------------"
+
 artifacts:
   files:
     - appspec.yaml

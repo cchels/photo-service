@@ -1,10 +1,47 @@
 version: 0.2
 
 phases:
+  install:
+    commands:
+      - echo "→ Entering install phase"
+      - set -xe
+
   build:
     commands:
+      - echo "→ Packaging index-photos"
       - cd index-photos && zip -r ../index-photos.zip . && cd ..
-      - cp appspec-index.yml appspec.yaml
+
+      - echo "→ Publishing new Lambda version"
+      - |
+        INDEX_TARGET=$(aws lambda publish-version \
+          --function-name index-photos \
+          --query Version --output text)
+      - echo "→ INDEX_TARGET=$INDEX_TARGET"
+
+      - echo "→ Fetching current alias version (or default to 0)"
+      - |
+        INDEX_CURRENT=$(aws lambda get-alias \
+          --function-name index-photos \
+          --name PROD \
+          --query FunctionVersion --output text \
+          || echo "0")
+      - echo "→ INDEX_CURRENT=$INDEX_CURRENT"
+
+      - echo "→ Checking that placeholders still exist in template"
+      - grep -n "{{CURRENT}}" appspec-index.yml
+      - grep -n "{{TARGET}}"  appspec-index.yml
+
+      - echo "→ Generating final appspec.yaml"
+      - |
+        sed \
+          -e "s/{{CURRENT}}/${INDEX_CURRENT}/g" \
+          -e "s/{{TARGET}}/${INDEX_TARGET}/g" \
+          appspec-index.yml > appspec.yaml
+
+      - echo "------ appspec.yaml ------"
+      - cat appspec.yaml
+      - echo "--------------------------"
+
 artifacts:
   files:
     - appspec.yaml

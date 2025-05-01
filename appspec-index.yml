@@ -1,10 +1,11 @@
 version: 0.0
 resources:
   - index-photos:
-      type: AWS::Lambda::Function
+      type: "AWS::Lambda::Function"
       properties:
-        name: index-photos
-        alias: PROD
-        currentversion: 1
-        targetversion: 2
+        name: "index-photos"
+        alias: "PROD"
+        currentversion: "{{CURRENT}}"
+        targetversion: "{{TARGET}}"
+
 hooks: []
